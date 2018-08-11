@@ -1,17 +1,12 @@
 package com.coviam.shopcarro.merchant.service;
 
 import com.coviam.shopcarro.merchant.dto.MerchantDto;
+import com.coviam.shopcarro.merchant.dto.MerchantProductListDto;
 import com.coviam.shopcarro.merchant.dto.StockDetailsDto;
-import com.coviam.shopcarro.merchant.model.Merchant;
-import com.coviam.shopcarro.merchant.model.Stock;
 import com.coviam.shopcarro.merchant.model.key.StockId;
-import com.coviam.shopcarro.merchant.repository.IMerchantRepository;
-import com.coviam.shopcarro.merchant.repository.IStockRepository;
-import com.coviam.shopcarro.merchant.utilities.UtilityFunctions;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
+import com.sun.org.apache.xpath.internal.operations.Bool;
 
-import java.util.Optional;
+import java.util.List;
 
 /**
  * @author sreerajr
@@ -19,46 +14,18 @@ import java.util.Optional;
  * @project merchant
  */
 
-@Service
-public class MerchantService implements IMerchantService {
+public interface MerchantService {
+    MerchantDto getMerchantById(String merchantId);
 
-    @Autowired
-    private IMerchantRepository iMerchantRepository;
+    StockDetailsDto getStockById(StockId stockId);
 
-    @Autowired
-    private IStockRepository iStockRepository;
+    Boolean createMerchant(MerchantDto merchantDto);
 
-    @Override
-    public MerchantDto getMerchantById(String merchantId) {
-        Optional<Merchant> merchant = iMerchantRepository.findById(merchantId);
-        if(!merchant.isPresent())
-            return null;
-        return UtilityFunctions.merchantToMerchantDto(merchant.get());
-    }
+    Boolean createStock(StockDetailsDto stockDetailsDto);
 
-    @Override
-    public StockDetailsDto getStockById(StockId stockId) {
-        Optional<Stock> stock = iStockRepository.findById(stockId);
-        if(!stock.isPresent())
-            return null;
-        return UtilityFunctions.stockToStockDetailsDto(stock.get());
-    }
+    Boolean decrementStock(String merchantId, String productId, Long quantity);
 
-    @Override
-    public Boolean createMerchant(MerchantDto merchantDto) {
-        if(null != getMerchantById(merchantDto.getMerchantId())) {
-            return false;
-        }
-        iMerchantRepository.save(UtilityFunctions.merchantDtoToMerchant(merchantDto));
-        return true;
-    }
+    Boolean getAvailability(String merchantId, String productId, Long quantity);
 
-    @Override
-    public Boolean createStock(StockDetailsDto stockDetailsDto) {
-        if(null != getStockById(new StockId(stockDetailsDto.getMerchantId(), stockDetailsDto.getProductId()))) {
-            return false;
-        }
-        iStockRepository.save(UtilityFunctions.stockDetailsDtoToStock(stockDetailsDto));
-        return true;
-    }
+    List<StockDetailsDto> getMerchants(MerchantProductListDto merchantProductListDto);
 }
